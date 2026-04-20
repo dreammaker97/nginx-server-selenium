@@ -1,0 +1,39 @@
+version: "3"
+
+services:
+  php-fpm:
+    image: php:fpm-alpine
+    volumes:
+      - ./src/data:/usr/share/nginx/data
+    restart: always
+    networks:
+      - appnet
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./config/sites-conf/data.conf:/etc/nginx/sites-conf/data.conf
+      - ./src/data:/usr/share/nginx/data
+      - ./src/data/share:/usr/share/nginx/data/share
+    ports:
+      - "8080:8080"
+    depends_on:
+      - php-fpm
+    restart: always
+    networks:
+      - appnet
+
+  selenium:
+    image: selenium/standalone-chrome
+    container_name: selenium
+    shm_size: 2gb
+    # ports:
+    #   - "4444:4444"
+    #   - "7900:7900"
+    networks:
+      - appnet
+
+networks:
+  appnet:
+    driver: bridge
